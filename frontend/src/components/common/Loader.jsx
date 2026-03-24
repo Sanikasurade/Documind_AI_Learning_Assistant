@@ -23,7 +23,7 @@ export const PageLoader = () => (
         <div className="absolute inset-0 rounded-full border-2 border-transparent
                         border-t-primary-500 animate-spin" />
       </div>
-      <p className="text-sm text-[var(--color-muted)] font-medium">Loading StudyGenie...</p>
+      <p className="text-sm text-[var(--color-muted)] font-medium">Loading DocuMind...</p>
     </div>
   </div>
 )

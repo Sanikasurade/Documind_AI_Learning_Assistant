@@ -41,6 +41,19 @@ const documentSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    chatHistory: [
+      {
+        role: {
+          type: String,
+          enum: ["user", "model"],
+          required: true,
+        },
+        content: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

@@ -13,16 +13,23 @@ const getDocumentForUser = async (docId, userId) => {
 // @desc    Chat with document
 // @route   POST /api/v1/ai/chat
 const chatWithDocument = async (req, res) => {
-  const { documentId, question, chatHistory = [] } = req.body;
+  const { documentId, question } = req.body;
 
   if (!documentId || !question) {
     return res.status(400).json({ success: false, message: "documentId and question are required." });
   }
 
   const document = await getDocumentForUser(documentId, req.user._id);
-  const answer = await geminiService.chat(document.extractedText, question, chatHistory);
+  
+  const history = document.chatHistory || [];
+  const answer = await geminiService.chat(document.extractedText, question, history);
 
-  res.status(200).json({ success: true, answer });
+  // Save to database
+  document.chatHistory.push({ role: "user", content: question });
+  document.chatHistory.push({ role: "model", content: answer });
+  await document.save();
+
+  res.status(200).json({ success: true, answer, chatHistory: document.chatHistory });
 };
 
 // @desc    Generate summary

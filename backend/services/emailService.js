@@ -25,9 +25,9 @@ const sendLoginOTP = async (email, otp, name) => {
   const transporter = createTransporter();
 
   const mailOptions = {
-    from: `"StudyGenie AI" <${process.env.EMAIL_USER}>`,
+    from: `"DocuMind AI" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: "Your StudyGenie Login OTP",
+    subject: "Your DocuMind Login OTP",
     html: `
       <!DOCTYPE html>
       <html>
@@ -41,7 +41,7 @@ const sendLoginOTP = async (email, otp, name) => {
           
           <!-- Header -->
           <div style="background:linear-gradient(135deg,#16b371,#0a925b);padding:32px;text-align:center;">
-            <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;">StudyGenie AI</h1>
+            <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;">DocuMind AI</h1>
             <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;font-size:14px;">Smart Document Learning Assistant</p>
           </div>
 
@@ -49,7 +49,7 @@ const sendLoginOTP = async (email, otp, name) => {
           <div style="padding:36px 32px;">
             <h2 style="color:#080d0a;margin:0 0 8px;font-size:20px;">Hello, ${name}! 👋</h2>
             <p style="color:#4a5e52;margin:0 0 28px;font-size:15px;line-height:1.6;">
-              You requested to log in to your StudyGenie account. Use the OTP below to complete your login.
+              You requested to log in to your DocuMind account. Use the OTP below to complete your login.
             </p>
 
             <!-- OTP Box -->
@@ -78,7 +78,7 @@ const sendLoginOTP = async (email, otp, name) => {
           <!-- Footer -->
           <div style="background:#f6faf8;padding:20px 32px;border-top:1px solid #d3f8e4;text-align:center;">
             <p style="color:#7aaa8a;margin:0;font-size:12px;">
-              © ${new Date().getFullYear()} StudyGenie AI · This is an automated email
+              © ${new Date().getFullYear()} DocuMind AI · This is an automated email
             </p>
           </div>
         </div>
@@ -98,9 +98,9 @@ const sendForgotPasswordOTP = async (email, otp, name) => {
   const transporter = createTransporter();
 
   const mailOptions = {
-    from: `"StudyGenie AI" <${process.env.EMAIL_USER}>`,
+    from: `"DocuMind AI" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: "Reset Your StudyGenie Password",
+    subject: "Reset Your DocuMind Password",
     html: `
       <!DOCTYPE html>
       <html>
@@ -114,7 +114,7 @@ const sendForgotPasswordOTP = async (email, otp, name) => {
           
           <!-- Header -->
           <div style="background:linear-gradient(135deg,#ef4444,#dc2626);padding:32px;text-align:center;">
-            <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;">StudyGenie AI</h1>
+            <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;">DocuMind AI</h1>
             <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;font-size:14px;">Password Reset Request</p>
           </div>
 
@@ -122,7 +122,7 @@ const sendForgotPasswordOTP = async (email, otp, name) => {
           <div style="padding:36px 32px;">
             <h2 style="color:#080d0a;margin:0 0 8px;font-size:20px;">Hello, ${name}! 🔐</h2>
             <p style="color:#4a5e52;margin:0 0 28px;font-size:15px;line-height:1.6;">
-              We received a request to reset your StudyGenie account password. Use the OTP below to proceed.
+              We received a request to reset your DocuMind account password. Use the OTP below to proceed.
             </p>
 
             <!-- OTP Box -->
@@ -151,7 +151,7 @@ const sendForgotPasswordOTP = async (email, otp, name) => {
           <!-- Footer -->
           <div style="background:#f6faf8;padding:20px 32px;border-top:1px solid #d3f8e4;text-align:center;">
             <p style="color:#7aaa8a;margin:0;font-size:12px;">
-              © ${new Date().getFullYear()} StudyGenie AI · This is an automated email
+              © ${new Date().getFullYear()} DocuMind AI · This is an automated email
             </p>
           </div>
         </div>

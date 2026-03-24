@@ -50,10 +50,7 @@ const ContentTab = ({ document }) => {
 }
 
 // ── TAB 2: Chat ───────────────────────────────────────────────────────────────
-const ChatTab = ({ document }) => {
-  const [messages, setMessages] = useState([
-    { role: 'model', content: `Hi! I've read **${document.title}**. Ask me anything about it!` }
-  ])
+const ChatTab = ({ document, messages, setMessages }) => {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef(null)
@@ -64,12 +61,18 @@ const ChatTab = ({ document }) => {
     if (!input.trim() || loading) return
     const question = input.trim()
     setInput('')
-    const history = messages.slice(1).map(m => ({ role: m.role, content: m.content }))
     setMessages(prev => [...prev, { role: 'user', content: question }])
     setLoading(true)
     try {
-      const res = await aiService.chat(document._id, question, history)
-      setMessages(prev => [...prev, { role: 'model', content: res.data.answer }])
+      const res = await aiService.chat(document._id, question)
+      if (res.data.chatHistory) {
+         setMessages([
+           { role: 'model', content: `Hi! I've read **${document.title}**. Ask me anything about it!` },
+           ...res.data.chatHistory
+         ])
+      } else {
+         setMessages(prev => [...prev, { role: 'model', content: res.data.answer }])
+      }
     } catch {
       toast.error('AI response failed. Try again.')
       setMessages(prev => prev.slice(0, -1))
@@ -571,10 +574,18 @@ const DocumentWorkspacePage = () => {
   const [document, setDocument] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('content')
+  const [chatMessages, setChatMessages] = useState([])
 
   useEffect(() => {
     documentService.getById(id)
-      .then(r => setDocument(r.data.document))
+      .then(r => {
+        setDocument(r.data.document)
+        const history = r.data.document.chatHistory || []
+        setChatMessages([
+          { role: 'model', content: `Hi! I've read **${r.data.document.title}**. Ask me anything about it!` },
+          ...history
+        ])
+      })
       .catch(() => { toast.error('Document not found.'); navigate('/dashboard') })
       .finally(() => setLoading(false))
   }, [id])
@@ -629,7 +640,7 @@ const DocumentWorkspacePage = () => {
         <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
           {activeTab === 'content' && <ContentTab document={document} />}
-          {activeTab === 'chat' && <ChatTab document={document} />}
+          {activeTab === 'chat' && <ChatTab document={document} messages={chatMessages} setMessages={setChatMessages} />}
           {activeTab === 'ai' && <AITab document={document} />}
           {activeTab === 'flashcards' && <FlashcardsTab document={document} />}
           {activeTab === 'quiz' && <QuizTab document={document} />}

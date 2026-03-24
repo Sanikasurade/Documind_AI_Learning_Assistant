@@ -39,7 +39,7 @@ const Navbar = () => {
               <Brain size={18} className="text-white" />
             </div>
             <span className="font-display font-bold text-lg text-[var(--color-text)]">
-              StudyGenie <span className="gradient-text">AI</span>
+              DocuMind <span className="gradient-text">AI</span>
             </span>
           </Link>
 

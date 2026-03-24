@@ -1,7 +1,7 @@
 {
-  "name": "studygenie-server",
+  "name": "documind-server",
   "version": "1.0.0",
-  "description": "StudyGenie AI - Backend API Server",
+  "description": "DocuMind AI - Backend API Server",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

@@ -6,6 +6,11 @@ const nodemailer = require("nodemailer");
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+const validatePassword = (password) => {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+  return regex.test(password);
+};
+
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
@@ -43,12 +48,12 @@ const generateOTP = () =>
 const sendOTPEmail = async ({ to, name, otp, subject, purpose }) => {
   const transporter = createTransporter();
   await transporter.sendMail({
-    from: `"StudyGenie" <${process.env.EMAIL_USER}>`,
+    from: `"DocuMind" <${process.env.EMAIL_USER}>`,
     to,
     subject,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
-        <h2 style="color:#4f46e5">StudyGenie – ${purpose}</h2>
+        <h2 style="color:#4f46e5">DocuMind – ${purpose}</h2>
         <p>Hi ${name},</p>
         <p>Your one-time verification code is:</p>
         <div style="font-size:36px;font-weight:bold;letter-spacing:10px;
@@ -75,8 +80,8 @@ const signup = async (req, res) => {
   if (!name || !email || !password)
     return res.status(400).json({ success: false, message: "Please provide name, email, and password." });
 
-  if (password.length < 6)
-    return res.status(400).json({ success: false, message: "Password must be at least 6 characters." });
+  if (!validatePassword(password))
+    return res.status(400).json({ success: false, message: "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character." });
 
   const existing = await User.findOne({ email });
   if (existing)
@@ -114,7 +119,7 @@ const login = async (req, res) => {
       to: user.email,
       name: user.name,
       otp,
-      subject: "StudyGenie – Login Verification Code",
+      subject: "DocuMind – Login Verification Code",
       purpose: "Login OTP",
     });
     return res.status(200).json({ success: true, requiresOTP: true });
@@ -189,7 +194,7 @@ const forgotPassword = async (req, res) => {
       to: user.email,
       name: user.name,
       otp,
-      subject: "StudyGenie – Password Reset OTP",
+      subject: "DocuMind – Password Reset OTP",
       purpose: "Password Reset",
     });
     return res.status(200).json({ success: true, message: "If that email is registered, an OTP has been sent." });
@@ -245,8 +250,8 @@ const resetPassword = async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
 
-  if (!password || password.length < 6)
-    return res.status(400).json({ success: false, message: "Password must be at least 6 characters." });
+  if (!password || !validatePassword(password))
+    return res.status(400).json({ success: false, message: "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character." });
 
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -294,7 +299,7 @@ const resendOtp = async (req, res) => {
       to: user.email,
       name: user.name,
       otp,
-      subject: isLogin ? "StudyGenie – Login Verification Code" : "StudyGenie – Password Reset OTP",
+      subject: isLogin ? "DocuMind – Login Verification Code" : "DocuMind – Password Reset OTP",
       purpose: isLogin ? "Login OTP" : "Password Reset",
     });
     return res.status(200).json({ success: true, message: "New OTP sent to your email." });
@@ -331,8 +336,8 @@ const updateProfile = async (req, res) => {
     if (!isMatch)
       return res.status(401).json({ success: false, message: "Current password is incorrect." });
 
-    if (newPassword.length < 6)
-      return res.status(400).json({ success: false, message: "New password must be at least 6 characters." });
+    if (!validatePassword(newPassword))
+      return res.status(400).json({ success: false, message: "New password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character." });
 
     user.password = newPassword;
   }

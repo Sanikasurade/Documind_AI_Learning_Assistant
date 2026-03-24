@@ -21,14 +21,15 @@ const SignupPage = () => {
       toast.error('Please fill in all fields.')
       return
     }
-    if (form.password.length < 6) {
-      toast.error('Password must be at least 6 characters.')
+    const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!passRegex.test(form.password)) {
+      toast.error('Password must be at least 8 chars long and include uppercase, lowercase, number, and special character.')
       return
     }
     setLoading(true)
     try {
       await signup(form.name, form.email, form.password)
-      toast.success('Account created! Welcome to StudyGenie 🎉')
+      toast.success('Account created! Welcome to DocuMind 🎉')
       navigate('/dashboard')
     } catch (err) {
       toast.error(err.response?.data?.message || 'Signup failed.')
@@ -98,7 +99,7 @@ const SignupPage = () => {
                 <input
                   name="password" type={showPass ? 'text' : 'password'}
                   value={form.password} onChange={handleChange}
-                  placeholder="Min. 6 characters" className="input pl-10 pr-10" required
+                  placeholder="Strong password" className="input pl-10 pr-10" required
                 />
                 <button
                   type="button" onClick={() => setShowPass(p => !p)}

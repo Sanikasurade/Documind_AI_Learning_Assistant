@@ -95,7 +95,7 @@ const Hero = () => (
             </div>
             <div className="flex-1 mx-4 h-6 rounded-lg bg-[var(--color-surface)]
                             flex items-center px-3">
-              <span className="text-xs text-[var(--color-muted)]">studygenie.ai/dashboard</span>
+              <span className="text-xs text-[var(--color-muted)]">documind.ai/dashboard</span>
             </div>
           </div>
           {/* Dashboard preview */}
@@ -298,10 +298,10 @@ const Footer = () => (
         <div className="w-7 h-7 rounded-lg bg-primary-500 flex items-center justify-center">
           <Brain size={15} className="text-white" />
         </div>
-        <span className="font-semibold text-[var(--color-text)]">StudyGenie AI</span>
+        <span className="font-semibold text-[var(--color-text)]">DocuMind AI</span>
       </div>
       <p className="text-sm text-[var(--color-muted)]">
-        © {new Date().getFullYear()} StudyGenie AI. Built for students, by students.
+        © {new Date().getFullYear()} DocuMind AI. Built for students, by students.
       </p>
     </div>
   </footer>

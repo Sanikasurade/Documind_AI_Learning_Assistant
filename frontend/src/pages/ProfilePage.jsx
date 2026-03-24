@@ -22,8 +22,9 @@ const ProfilePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (form.newPassword && form.newPassword.length < 6) {
-      toast.error('New password must be at least 6 characters.')
+    const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (form.newPassword && !passRegex.test(form.newPassword)) {
+      toast.error('New password must be at least 8 chars long and include uppercase, lowercase, number, and special character.')
       return
     }
     setLoading(true)
@@ -125,7 +126,7 @@ const ProfilePage = () => {
                                            text-[var(--color-muted)]" />
                 <input name="newPassword" type={showNew ? 'text' : 'password'}
                   value={form.newPassword} onChange={handleChange}
-                  className="input pl-10 pr-10" placeholder="Min. 6 characters" />
+                  className="input pl-10 pr-10" placeholder="Strong password" />
                 <button type="button" onClick={() => setShowNew(p => !p)}
                   className="absolute right-3 top-1/2 -translate-y-1/2
                              text-[var(--color-muted)] hover:text-[var(--color-text)]">

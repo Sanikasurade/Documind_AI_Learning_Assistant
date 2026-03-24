@@ -38,7 +38,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get("/api/v1/health", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "StudyGenie API is running 🚀",
+    message: "DocuMind API is running 🚀",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
   });
@@ -67,7 +67,7 @@ const startServer = async () => {
 
   app.listen(PORT, () => {
     console.log("\n=======================================");
-    console.log(`🚀 StudyGenie AI Server running`);
+    console.log(`🚀 DocuMind AI Server running`);
     console.log(`📡 Port     : ${PORT}`);
     console.log(`🌍 Env      : ${process.env.NODE_ENV || "development"}`);
     console.log(`🔗 Health   : http://localhost:${PORT}/api/v1/health`);

@@ -28,8 +28,9 @@ const ResetPasswordPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (form.newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters.')
+    const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!passRegex.test(form.newPassword)) {
+      toast.error('Password must be at least 8 chars long and include uppercase, lowercase, number, and special character.')
       return
     }
     if (form.newPassword !== form.confirmPassword) {
@@ -113,7 +114,7 @@ const ResetPasswordPage = () => {
                   type={showNew ? 'text' : 'password'}
                   value={form.newPassword}
                   onChange={handleChange}
-                  placeholder="Min. 6 characters"
+                  placeholder="Strong password"
                   className="input pl-10 pr-10"
                   required
                 />
