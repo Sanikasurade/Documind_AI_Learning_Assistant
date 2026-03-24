@@ -72,26 +72,48 @@ ${context}`;
 
 /**
  * Explain a concept using the document as context.
+ * Returns { isOutOfScope: boolean, explanation: string }
  */
 const explain = async (documentText, concept) => {
   const model = getModel();
   const context = truncateForAI(documentText);
 
-  const prompt = `Using ONLY the information from the document below, explain the concept of "${concept}".
+  const prompt = `You are a strict document-based study assistant. A user wants to understand the concept: "${concept}".
 
-If the concept isn't directly covered in the document, use related information from the document to provide context, and note what you're doing.
+Your job is to:
+1. First, determine if this concept is covered or meaningfully referenced in the document below.
+2. If it IS in the document: explain it clearly using ONLY information from the document.
+3. If it is NOT in the document: do NOT explain it. Instead, clearly state that this concept is not in the document.
 
-Structure your explanation:
-1. **Definition** (what is it)
-2. **How it works** (mechanism/process)
-3. **Key characteristics**
-4. **Examples from the document** (if any)
+You MUST return a valid JSON object (no markdown fences, no extra text) with this exact structure:
+{
+  "isOutOfScope": true or false,
+  "explanation": "Your explanation here"
+}
+
+Rules:
+- Set "isOutOfScope" to false ONLY if the concept is directly discussed in the document.
+- Set "isOutOfScope" to true if the concept is not mentioned or is only very tangentially related.
+- When isOutOfScope is false, structure explanation as:
+  1. Definition (what is it per the document)
+  2. How it works (mechanism/process from the document)
+  3. Key characteristics (from the document)
+  4. Examples from the document (if any)
+- When isOutOfScope is true, the explanation should be a short message like:
+  "The concept of [concept] is not covered in this document. This document focuses on [brief mention of what the doc IS about]. Please ask something related to the document content."
 
 DOCUMENT:
 ${context}`;
 
   const result = await model.generateContent(prompt);
-  return result.response.text();
+  const text = result.response.text();
+
+  try {
+    return parseJSON(text);
+  } catch {
+    // Fallback: if AI didn't return valid JSON, treat as plain explanation
+    return { isOutOfScope: false, explanation: text };
+  }
 };
 
 /**

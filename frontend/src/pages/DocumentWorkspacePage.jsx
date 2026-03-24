@@ -147,6 +147,7 @@ const AITab = ({ document }) => {
   const [summary, setSummary] = useState(document.summary || '')
   const [concept, setConcept] = useState('')
   const [explanation, setExpl] = useState('')
+  const [isOutOfScope, setIsOutOfScope] = useState(false)
   const [loadSum, setLoadSum] = useState(false)
   const [loadExp, setLoadExp] = useState(false)
 
@@ -163,9 +164,12 @@ const AITab = ({ document }) => {
   const explainConcept = async () => {
     if (!concept.trim()) { toast.error('Enter a concept to explain.'); return }
     setLoadExp(true)
+    setExpl('')
+    setIsOutOfScope(false)
     try {
       const res = await aiService.explainConcept(document._id, concept)
       setExpl(res.data.explanation)
+      setIsOutOfScope(res.data.isOutOfScope ?? false)
     } catch { toast.error('Failed to explain concept.') }
     finally { setLoadExp(false) }
   }
@@ -203,7 +207,7 @@ const AITab = ({ document }) => {
           </div>
           <div>
             <h3 className="font-semibold text-[var(--color-text)]">Explain a Concept</h3>
-            <p className="text-xs text-[var(--color-muted)]">Deep dive into any topic</p>
+            <p className="text-xs text-[var(--color-muted)]">Only from this document's content</p>
           </div>
         </div>
         <div className="flex gap-2 mb-4">
@@ -216,10 +220,38 @@ const AITab = ({ document }) => {
             {loadExp ? <Loader2 size={15} className="animate-spin" /> : <Brain size={16} />}
           </button>
         </div>
+
         {explanation && (
-          <div className="bg-[var(--color-surface)] rounded-xl p-4 text-sm text-[var(--color-text)]
-                          leading-relaxed whitespace-pre-line border border-[var(--color-border)]">
-            {explanation}
+          <div className="space-y-3">
+            {/* Out-of-scope warning banner */}
+            {isOutOfScope ? (
+              <div className="flex items-start gap-3 px-4 py-3 rounded-xl border
+                              bg-red-500/8 border-red-500/30 text-red-500">
+                <XCircle size={18} className="mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-semibold text-sm">Outside Document Scope</p>
+                  <p className="text-xs mt-0.5 text-red-400">
+                    This concept was <strong>not found</strong> in <em>{document.title}</em>. Only ask about topics covered in your uploaded document.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-4 py-2 rounded-xl border
+                              bg-primary-500/8 border-primary-500/20 text-primary-500 text-xs font-medium">
+                <CheckCircle size={14} />
+                Answered from document: <span className="italic">{document.title}</span>
+              </div>
+            )}
+
+            {/* Explanation text */}
+            <div className={`rounded-xl p-4 text-sm text-[var(--color-text)]
+                             leading-relaxed whitespace-pre-line border
+                             ${isOutOfScope
+                               ? 'bg-red-500/5 border-red-500/20'
+                               : 'bg-[var(--color-surface)] border-[var(--color-border)]'
+                             }`}>
+              {explanation}
+            </div>
           </div>
         )}
       </div>

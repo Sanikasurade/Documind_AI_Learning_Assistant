@@ -57,9 +57,13 @@ const explainConcept = async (req, res) => {
   }
 
   const document = await getDocumentForUser(documentId, req.user._id);
-  const explanation = await geminiService.explain(document.extractedText, concept);
+  const result = await geminiService.explain(document.extractedText, concept);
 
-  res.status(200).json({ success: true, explanation });
+  res.status(200).json({
+    success: true,
+    explanation: result.explanation,
+    isOutOfScope: result.isOutOfScope ?? false,
+  });
 };
 
 // @desc    Generate flashcards
