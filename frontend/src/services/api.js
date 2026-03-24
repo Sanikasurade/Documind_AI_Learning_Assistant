@@ -19,7 +19,11 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      window.location.href = '/login'
+      
+      const authPaths = ['/login', '/signup', '/verify-otp', '/forgot-password', '/reset-password']
+      if (!authPaths.includes(window.location.pathname)) {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }
