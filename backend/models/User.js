@@ -18,6 +18,30 @@ const userSchema = new mongoose.Schema(
       trim: true,
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid email"],
     },
+    phone: {
+      type: String,
+      trim: true,
+      maxlength: [15, "Phone number cannot exceed 15 characters"],
+      default: "",
+    },
+    institution: {
+      type: String,
+      trim: true,
+      maxlength: [100, "Institution name cannot exceed 100 characters"],
+      default: "",
+    },
+    learningGoal: {
+      type: String,
+      trim: true,
+      maxlength: [200, "Learning goal cannot exceed 200 characters"],
+      default: "",
+    },
+    bio: {
+      type: String,
+      trim: true,
+      maxlength: [300, "Bio cannot exceed 300 characters"],
+      default: "",
+    },
     password: {
       type: String,
       required: [true, "Password is required"],

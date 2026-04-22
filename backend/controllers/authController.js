@@ -25,6 +25,10 @@ const sendTokenResponse = (user, statusCode, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      phone: user.phone || "",
+      institution: user.institution || "",
+      learningGoal: user.learningGoal || "",
+      bio: user.bio || "",
       createdAt: user.createdAt,
     },
   });
@@ -322,31 +326,28 @@ const getMe = async (req, res) => {
 // @route   PUT /api/v1/auth/update-profile
 // @access  Private
 const updateProfile = async (req, res) => {
-  const { name, email, currentPassword, newPassword } = req.body;
-  const user = await User.findById(req.user._id).select("+password");
+  const { name, phone, institution, learningGoal, bio } = req.body;
+  const user = await User.findById(req.user._id);
 
   if (name) user.name = name;
-  if (email) user.email = email;
+  if (phone !== undefined) user.phone = phone;
+  if (institution !== undefined) user.institution = institution;
+  if (learningGoal !== undefined) user.learningGoal = learningGoal;
+  if (bio !== undefined) user.bio = bio;
 
-  if (newPassword) {
-    if (!currentPassword)
-      return res.status(400).json({ success: false, message: "Please provide your current password." });
-
-    const isMatch = await user.comparePassword(currentPassword);
-    if (!isMatch)
-      return res.status(401).json({ success: false, message: "Current password is incorrect." });
-
-    if (!validatePassword(newPassword))
-      return res.status(400).json({ success: false, message: "New password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character." });
-
-    user.password = newPassword;
-  }
-
-  await user.save();
+  await user.save({ validateBeforeSave: false });
   res.status(200).json({
     success: true,
     message: "Profile updated successfully.",
-    user: { _id: user._id, name: user.name, email: user.email },
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone || "",
+      institution: user.institution || "",
+      learningGoal: user.learningGoal || "",
+      bio: user.bio || "",
+    },
   });
 };
 

@@ -70,7 +70,6 @@ const startServer = async () => {
     console.log(`🚀 DocuMind AI Server running`);
     console.log(`📡 Port     : ${PORT}`);
     console.log(`🌍 Env      : ${process.env.NODE_ENV || "development"}`);
-    console.log(`🔗 Health   : http://localhost:${PORT}/api/v1/health`);
     console.log("=======================================\n");
   });
 };

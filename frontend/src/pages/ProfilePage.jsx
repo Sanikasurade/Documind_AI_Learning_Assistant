@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { User, Mail, Lock, Save, Eye, EyeOff } from 'lucide-react'
+import { User, Phone, GraduationCap, Target, FileText, Save } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { authService } from '../services/authService'
 import toast from 'react-hot-toast'
@@ -9,34 +9,33 @@ const ProfilePage = () => {
   const { user, updateUser } = useAuth()
   const [form, setForm] = useState({
     name: user?.name || '',
-    email: user?.email || '',
-    currentPassword: '',
-    newPassword: '',
+    phone: user?.phone || '',
+    institution: user?.institution || '',
+    learningGoal: user?.learningGoal || '',
+    bio: user?.bio || '',
   })
-  const [showCurrent, setShowCurrent] = useState(false)
-  const [showNew, setShowNew]         = useState(false)
-  const [loading, setLoading]         = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e) =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-    if (form.newPassword && !passRegex.test(form.newPassword)) {
-      toast.error('New password must be at least 8 chars long and include uppercase, lowercase, number, and special character.')
+    if (!form.name.trim()) {
+      toast.error('Name is required.')
       return
     }
     setLoading(true)
     try {
-      const payload = { name: form.name, email: form.email }
-      if (form.newPassword) {
-        payload.currentPassword = form.currentPassword
-        payload.newPassword     = form.newPassword
+      const payload = {
+        name: form.name,
+        phone: form.phone,
+        institution: form.institution,
+        learningGoal: form.learningGoal,
+        bio: form.bio,
       }
       const res = await authService.updateProfile(payload)
       updateUser(res.data.user)
-      setForm(prev => ({ ...prev, currentPassword: '', newPassword: '' }))
       toast.success('Profile updated successfully!')
     } catch (err) {
       toast.error(err.response?.data?.message || 'Update failed.')
@@ -53,7 +52,7 @@ const ProfilePage = () => {
           Profile Settings
         </h1>
 
-        {/* Avatar */}
+        {/* Avatar & Info */}
         <div className="card mb-6 flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-primary-500 flex items-center
                           justify-center text-white text-2xl font-bold shadow-lg shadow-primary-500/30">
@@ -70,7 +69,7 @@ const ProfilePage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <h2 className="font-semibold text-[var(--color-text)] border-b
                            border-[var(--color-border)] pb-4">
-              Account Information
+              Personal Information
             </h2>
 
             {/* Name */}
@@ -84,55 +83,57 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            {/* Email */}
+            {/* Phone */}
             <div>
-              <label className="label">Email Address</label>
+              <label className="label">Phone Number</label>
               <div className="relative">
-                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2
+                <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2
                                            text-[var(--color-muted)]" />
-                <input name="email" type="email" value={form.email} onChange={handleChange}
-                  className="input pl-10" placeholder="your@email.com" />
+                <input name="phone" value={form.phone} onChange={handleChange}
+                  className="input pl-10" placeholder="e.g. +91 9876543210" />
+              </div>
+            </div>
+
+            {/* Institution */}
+            <div>
+              <label className="label">Institution / Organization</label>
+              <div className="relative">
+                <GraduationCap size={16} className="absolute left-3 top-1/2 -translate-y-1/2
+                                           text-[var(--color-muted)]" />
+                <input name="institution" value={form.institution} onChange={handleChange}
+                  className="input pl-10" placeholder="e.g. MIT, Stanford University" />
               </div>
             </div>
 
             {/* Divider */}
             <h2 className="font-semibold text-[var(--color-text)] border-b
                            border-[var(--color-border)] pb-4 pt-2">
-              Change Password <span className="text-xs font-normal text-[var(--color-muted)]">(optional)</span>
+              Learning Profile
             </h2>
 
-            {/* Current password */}
+            {/* Learning Goal */}
             <div>
-              <label className="label">Current Password</label>
+              <label className="label">Learning Goal</label>
               <div className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2
+                <Target size={16} className="absolute left-3 top-3
                                            text-[var(--color-muted)]" />
-                <input name="currentPassword" type={showCurrent ? 'text' : 'password'}
-                  value={form.currentPassword} onChange={handleChange}
-                  className="input pl-10 pr-10" placeholder="Enter current password" />
-                <button type="button" onClick={() => setShowCurrent(p => !p)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2
-                             text-[var(--color-muted)] hover:text-[var(--color-text)]">
-                  {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+                <input name="learningGoal" value={form.learningGoal} onChange={handleChange}
+                  className="input pl-10" placeholder="e.g. Master Machine Learning fundamentals" />
               </div>
+              <p className="text-xs text-[var(--color-muted)] mt-1">What are you currently focused on learning?</p>
             </div>
 
-            {/* New password */}
+            {/* Bio */}
             <div>
-              <label className="label">New Password</label>
+              <label className="label">Bio</label>
               <div className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2
+                <FileText size={16} className="absolute left-3 top-3
                                            text-[var(--color-muted)]" />
-                <input name="newPassword" type={showNew ? 'text' : 'password'}
-                  value={form.newPassword} onChange={handleChange}
-                  className="input pl-10 pr-10" placeholder="Strong password" />
-                <button type="button" onClick={() => setShowNew(p => !p)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2
-                             text-[var(--color-muted)] hover:text-[var(--color-text)]">
-                  {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+                <textarea name="bio" value={form.bio} onChange={handleChange}
+                  rows={3}
+                  className="input pl-10 resize-none" placeholder="Tell us a little about yourself..." />
               </div>
+              <p className="text-xs text-[var(--color-muted)] mt-1">{form.bio.length}/300 characters</p>
             </div>
 
             <button type="submit" disabled={loading}
