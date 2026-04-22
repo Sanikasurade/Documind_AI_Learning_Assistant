@@ -10,8 +10,10 @@ const {
   resendOtp,
   getMe,
   updateProfile,
+  updateAvatar,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/authMiddleware");
+const { uploadImage } = require("../middleware/uploadMiddleware");
 
 // Public routes
 router.post("/signup", signup);
@@ -25,5 +27,6 @@ router.post("/resend-otp", resendOtp);
 // Protected routes
 router.get("/me", protect, getMe);
 router.put("/update-profile", protect, updateProfile);
+router.put("/update-avatar", protect, uploadImage.single("avatar"), updateAvatar);
 
 module.exports = router;

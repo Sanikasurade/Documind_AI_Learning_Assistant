@@ -5,4 +5,7 @@ export const authService = {
   login:  (data) => api.post('/auth/login', data),
   getMe:  ()     => api.get('/auth/me'),
   updateProfile: (data) => api.put('/auth/update-profile', data),
+  updateAvatar:  (data) => api.put('/auth/update-avatar',  data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
 }

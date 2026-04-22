@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const fs = require("fs");
+const path = require("path");
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -29,6 +31,7 @@ const sendTokenResponse = (user, statusCode, res) => {
       institution: user.institution || "",
       learningGoal: user.learningGoal || "",
       bio: user.bio || "",
+      profilePicture: user.profilePicture || "",
       createdAt: user.createdAt,
     },
   });
@@ -347,6 +350,44 @@ const updateProfile = async (req, res) => {
       institution: user.institution || "",
       learningGoal: user.learningGoal || "",
       bio: user.bio || "",
+      profilePicture: user.profilePicture || "",
+    },
+  });
+};
+
+// @desc    Update profile avatar
+// @route   PUT /api/v1/auth/update-avatar
+// @access  Private
+const updateAvatar = async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: "Please upload an image." });
+  }
+
+  const user = await User.findById(req.user._id);
+
+  // Delete old avatar if it exists
+  if (user.profilePicture) {
+    const oldPath = path.join(__dirname, "../uploads", user.profilePicture);
+    if (fs.existsSync(oldPath)) {
+      fs.unlinkSync(oldPath);
+    }
+  }
+
+  user.profilePicture = req.file.filename;
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    success: true,
+    message: "Profile picture updated successfully.",
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone || "",
+      institution: user.institution || "",
+      learningGoal: user.learningGoal || "",
+      bio: user.bio || "",
+      profilePicture: user.profilePicture,
     },
   });
 };
@@ -361,4 +402,5 @@ module.exports = {
   resendOtp,
   getMe,
   updateProfile,
+  updateAvatar,
 };
