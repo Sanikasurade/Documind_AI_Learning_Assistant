@@ -15,6 +15,7 @@ import DashboardPage from './pages/DashboardPage'
 import DocumentWorkspacePage from './pages/DocumentWorkspacePage'
 import FlashcardsPage from './pages/FlashcardsPage'
 import ProfilePage from './pages/ProfilePage'
+import UpgradePage from './pages/UpgradePage'
 
 const App = () => {
   const { loading } = useAuth()
@@ -55,6 +56,9 @@ const App = () => {
         } />
         <Route path="/profile" element={
           <ProtectedRoute><ProfilePage /></ProtectedRoute>
+        } />
+        <Route path="/upgrade" element={
+          <ProtectedRoute><UpgradePage /></ProtectedRoute>
         } />
 
         {/* Fallback — MUST be last */}

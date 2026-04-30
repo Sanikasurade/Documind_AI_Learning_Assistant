@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Upload, FileText, BookOpen, BarChart3, Trash2,
-  Plus, X, Brain, Calendar
+  Plus, X, Brain, Calendar, Crown
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { documentService } from '../services/documentService'
@@ -119,7 +119,7 @@ const DocumentCard = ({ doc, onDelete }) => {
 }
 
 // ── Upload Modal ──────────────────────────────────────────────────────────────
-const UploadModal = ({ onClose, onUpload }) => {
+const UploadModal = ({ onClose, onUpload, onLimitReached }) => {
   const [file, setFile] = useState(null)
   const [title, setTitle] = useState('')
   const [dragging, setDrag] = useState(false)
@@ -158,6 +158,12 @@ const UploadModal = ({ onClose, onUpload }) => {
       }, 400)
     } catch (err) {
       clearInterval(interval)
+      // 403 limit reached → redirect to upgrade
+      if (err.response?.status === 403 && err.response?.data?.limitReached) {
+        onClose()
+        onLimitReached()
+        return
+      }
       toast.error(err.response?.data?.message || 'Upload failed.')
       setUpl(false); setProg(0)
     }
@@ -273,12 +279,74 @@ const UploadModal = ({ onClose, onUpload }) => {
   )
 }
 
+// ── Plan Usage Banner ─────────────────────────────────────────────────────────
+const UsageBanner = ({ count, onClick }) => {
+  const used = Math.min(count, 5)
+  const pct = (used / 5) * 100
+  const isNearLimit = used >= 4
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.35 }}
+      className={`mb-8 p-4 rounded-2xl border flex items-center gap-4 cursor-pointer
+                  hover:border-primary-500/40 transition-all duration-200
+                  ${isNearLimit
+          ? 'bg-amber-500/5 border-amber-500/20'
+          : 'bg-[var(--color-surface)] border-[var(--color-border)]'}`}
+      onClick={onClick}
+    >
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0
+                       ${isNearLimit ? 'bg-amber-500/10' : 'bg-primary-500/10'}`}>
+        <Crown size={18} className={isNearLimit ? 'text-amber-400' : 'text-primary-500'} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-sm font-medium text-[var(--color-text)]">
+            {used} of 5 uploads used
+          </p>
+          <span className="text-xs text-[var(--color-muted)] shrink-0">Free Plan</span>
+        </div>
+        <div className="h-1.5 bg-[var(--color-border)] rounded-full overflow-hidden">
+          <motion.div
+            className={`h-full rounded-full ${isNearLimit ? 'bg-amber-400' : 'bg-primary-500'}`}
+            initial={{ width: 0 }}
+            animate={{ width: `${pct}%` }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          />
+        </div>
+      </div>
+      <span className={`text-xs font-medium shrink-0 px-3 py-1 rounded-full
+                        ${isNearLimit
+          ? 'bg-amber-500/10 text-amber-400'
+          : 'bg-primary-500/10 text-primary-500'}`}>
+        {isNearLimit ? 'Upgrade' : 'Go Pro'}
+      </span>
+    </motion.div>
+  )
+}
+
 // ── Dashboard Page ────────────────────────────────────────────────────────────
 const DashboardPage = () => {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [documents, setDocuments] = useState([])
   const [loading, setLoading] = useState(true)
   const [showUpload, setShowUpload] = useState(false)
+
+  const isProActive =
+    user?.plan === 'pro' &&
+    user?.planExpiresAt &&
+    new Date(user.planExpiresAt) > new Date()
+
+  const handleLimitReached = () => {
+    toast('You\'ve reached the 5-document limit. Upgrade to Pro!', {
+      icon: '🔒',
+      duration: 4000,
+    })
+    navigate('/upgrade')
+  }
 
   const fetchDocuments = useCallback(async () => {
     try {
@@ -308,14 +376,34 @@ const DashboardPage = () => {
         className="flex items-center justify-between mb-8"
       >
         <div>
-          <h1 className="text-3xl font-bold text-[var(--color-text)]"
+          <h1 className="text-3xl font-bold text-[var(--color-text)] flex items-center flex-wrap gap-2"
             style={{ fontFamily: "'Clash Display', sans-serif" }}>
-            Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'},{' '}
-            <span className="gradient-text">{user?.name?.split(' ')[0]}</span> 👋
+            <span>
+              Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'},{' '}
+              <span className="gradient-text">{user?.name?.split(' ')[0]}</span> 👋
+            </span>
+            {isProActive && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md ml-2 relative -top-0.5">
+                <Crown size={16} /> PRO
+              </span>
+            )}
           </h1>
-          <p className="text-[var(--color-muted)] mt-1">Your learning hub — let's get started.</p>
+          <p className="text-[var(--color-muted)] mt-1">
+            {isProActive 
+              ? 'Enjoy unlimited uploads and priority AI access.' 
+              : "Your learning hub — let's get started."}
+          </p>
         </div>
-        <button onClick={() => setShowUpload(true)} className="btn-primary">
+        <button
+          onClick={() => {
+            if (!isProActive && documents.length >= 5) {
+              handleLimitReached()
+            } else {
+              setShowUpload(true)
+            }
+          }}
+          className="btn-primary"
+        >
           <Plus size={18} /> Upload PDF
         </button>
       </motion.div>
@@ -326,6 +414,11 @@ const DashboardPage = () => {
         <StatCard icon={BookOpen} label="Flashcard Sets" value={totalFlashcards} color="bg-primary-500/10 text-primary-500" delay={0.2} />
         <StatCard icon={BarChart3} label="Quizzes" value={totalQuizzes} color="bg-purple-500/10 text-purple-500" delay={0.3} />
       </div>
+
+      {/* Plan usage banner — only for free users */}
+      {!isProActive && (
+        <UsageBanner count={documents.length} onClick={() => navigate('/upgrade')} />
+      )}
 
       {/* Documents */}
       <div className="mb-4 flex items-center justify-between">
@@ -363,7 +456,11 @@ const DashboardPage = () => {
       {/* Upload Modal */}
       <AnimatePresence>
         {showUpload && (
-          <UploadModal onClose={() => setShowUpload(false)} onUpload={handleUpload} />
+          <UploadModal
+            onClose={() => setShowUpload(false)}
+            onUpload={handleUpload}
+            onLimitReached={handleLimitReached}
+          />
         )}
       </AnimatePresence>
     </div>
