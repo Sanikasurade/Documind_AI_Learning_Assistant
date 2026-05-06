@@ -79,6 +79,25 @@ const userSchema = new mongoose.Schema(
       type: String,   // 'login' | 'forgot-password'
       select: false,
     },
+
+    // ── Subscription ──────────────────────────────────────────────────────
+    plan: {
+      type: String,
+      enum: ["free", "pro"],
+      default: "free",
+    },
+    planExpiresAt: {
+      type: Date,
+      default: null,
+    },
+    razorpayOrderId: {
+      type: String,
+      default: null,
+    },
+    razorpayPaymentId: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,

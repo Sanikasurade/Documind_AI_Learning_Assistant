@@ -32,6 +32,8 @@ const sendTokenResponse = (user, statusCode, res) => {
       learningGoal: user.learningGoal || "",
       bio: user.bio || "",
       profilePicture: user.profilePicture || "",
+      plan: user.plan,
+      planExpiresAt: user.planExpiresAt,
       createdAt: user.createdAt,
     },
   });
@@ -351,6 +353,8 @@ const updateProfile = async (req, res) => {
       learningGoal: user.learningGoal || "",
       bio: user.bio || "",
       profilePicture: user.profilePicture || "",
+      plan: user.plan,
+      planExpiresAt: user.planExpiresAt,
     },
   });
 };
@@ -388,6 +392,8 @@ const updateAvatar = async (req, res) => {
       learningGoal: user.learningGoal || "",
       bio: user.bio || "",
       profilePicture: user.profilePicture,
+      plan: user.plan,
+      planExpiresAt: user.planExpiresAt,
     },
   });
 };

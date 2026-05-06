@@ -11,6 +11,27 @@ const uploadDocument = async (req, res) => {
     return res.status(400).json({ success: false, message: "No file uploaded." });
   }
 
+  // ── Enforce plan limits ─────────────────────────────────────────
+  const User = require("../models/User");
+  const currentUser = await User.findById(req.user._id);
+  const isProActive =
+    currentUser.plan === "pro" &&
+    currentUser.planExpiresAt &&
+    new Date(currentUser.planExpiresAt) > new Date();
+
+  if (!isProActive) {
+    const docCount = await Document.countDocuments({ userId: req.user._id });
+    if (docCount >= 5) {
+      // Clean up the already-uploaded temp file
+      if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+      return res.status(403).json({
+        success: false,
+        limitReached: true,
+        message: "Free plan limit reached. Upgrade to upload more documents.",
+      });
+    }
+  }
+
   const { title } = req.body;
   const { filename, path: filePath, size } = req.file;
 
