@@ -15,6 +15,7 @@ const documentRoutes = require("./routes/documentRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const flashcardRoutes = require("./routes/flashcardRoutes");
 const quizRoutes = require("./routes/quizRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 const app = express();
 
@@ -51,6 +52,7 @@ app.use("/api/v1/documents", documentRoutes);
 app.use("/api/v1/ai", aiRoutes);
 app.use("/api/v1/flashcards", flashcardRoutes);
 app.use("/api/v1/quizzes", quizRoutes);
+app.use("/api/v1/payments", paymentRoutes);
 
 // ─── Error Handling ──────────────────────────────────────────────────────────
 
